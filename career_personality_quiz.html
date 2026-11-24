@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fff2cc">
+  <title>Which Career Path Suits You?</title>
+  <style>
+    :root {
+      --bg: #fff2cc; --brown: #49352b; --terracotta: #a94f38;
+      --charcoal: #51483f; --gold: #c18d36; --sage: #687653;
+      --card: #fffdf7; --line: #e6d8b9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; padding: 24px 16px;
+      background: var(--bg); color: var(--charcoal);
+      font-family: Arial, Helvetica, sans-serif; display: flex;
+      justify-content: center; align-items: flex-start;
+    }
+    .wrap { width: 100%; max-width: 720px; }
+    header { text-align: center; margin: 10px 0 22px; }
+    .eyebrow { color: var(--terracotta); font-weight: 700; letter-spacing: 2px; font-size: 12px; }
+    h1 { color: var(--brown); font-size: clamp(28px, 6vw, 42px); line-height: 1.08; margin: 10px 0; }
+    .intro { max-width: 560px; margin: 0 auto; line-height: 1.55; font-size: 16px; }
+    .panel {
+      background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+      padding: clamp(20px, 5vw, 34px); box-shadow: 0 8px 28px rgba(73,53,43,.08);
+    }
+    .progress-row { display:flex; justify-content:space-between; gap:12px; color:#786b5e; font-size:13px; font-weight:700; }
+    .track { height: 8px; background:#eee5d3; border-radius:20px; margin:10px 0 26px; overflow:hidden; }
+    .bar { height:100%; width:0; background:var(--sage); transition:width .2s ease; }
+    h2 { color:var(--brown); font-size:clamp(20px,4vw,25px); line-height:1.3; margin:0 0 20px; }
+    .answers { display:grid; gap:11px; }
+    button.answer {
+      width:100%; text-align:left; border:1.5px solid var(--line); background:#fff;
+      color:var(--charcoal); border-radius:12px; padding:15px 16px;
+      font-size:16px; line-height:1.4; cursor:pointer; transition:.15s ease;
+    }
+    button.answer:hover, button.answer:focus-visible { border-color:var(--terracotta); background:#fff8ee; outline:none; }
+    button.answer:active { transform:scale(.99); }
+    .hint { color:#827466; font-size:13px; margin:18px 0 0; text-align:center; }
+    .result { text-align:center; }
+    .result-icon { width:74px; height:74px; display:grid; place-items:center; border-radius:50%; margin:0 auto 16px; background:#f2ead8; font-size:34px; }
+    .result h2 { font-size:clamp(25px,5vw,34px); margin-bottom:10px; }
+    .result p { line-height:1.6; font-size:16px; }
+    .career { margin:20px 0; padding:16px; border-radius:12px; background:#f7f1e5; text-align:left; }
+    .career strong { display:block; color:var(--terracotta); margin-bottom:6px; }
+    .restart { border:0; border-radius:30px; background:var(--brown); color:white; padding:14px 24px; font-weight:700; font-size:15px; cursor:pointer; margin-top:8px; }
+    .restart:hover { background:var(--terracotta); }
+    footer { text-align:center; color:#827466; font-size:12px; margin:18px 0 4px; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="eyebrow">A QUICK PERSONALITY QUIZ</div>
+      <h1>WHICH CAREER PATH SUITS YOU?</h1>
+      <p class="intro">Discover which strengths and interests best describe you. Choose the answer that feels most like you — there are no right or wrong answers.</p>
+    </header>
+
+    <section class="panel" id="quiz" aria-live="polite">
+      <div class="progress-row"><span id="counter">QUESTION 1 OF 8</span><span id="percent">0% COMPLETE</span></div>
+      <div class="track"><div class="bar" id="bar"></div></div>
+      <h2 id="question"></h2>
+      <div class="answers" id="answers"></div>
+      <p class="hint">Choose one answer to continue.</p>
+    </section>
+
+    <section class="panel result hidden" id="result" aria-live="polite">
+      <div class="result-icon" id="resultIcon">✦</div>
+      <div class="eyebrow">YOUR CAREER PERSONALITY</div>
+      <h2 id="resultTitle"></h2>
+      <p id="resultDescription"></p>
+      <div class="career"><strong>CAREER DIRECTIONS TO EXPLORE</strong><span id="careerIdeas"></span></div>
+      <p class="hint">This is a fun starting point for exploring your interests — it does not determine what you should study or become.</p>
+      <button class="restart" onclick="restartQuiz()">TAKE THE QUIZ AGAIN</button>
+    </section>
+    <footer>No names or personal details are collected. Your result appears on this device.</footer>
+  </main>
+
+<script>
+const profiles = {
+  people: {
+    title: "THE PEOPLE PERSON", icon: "🤝",
+    description: "You enjoy meeting people, communicating and making others feel welcome. You may thrive in roles where teamwork and guest experiences matter.",
+    careers: "Guest Relations • Customer Experience • Tourism Services"
+  },
+  organiser: {
+    title: "THE ORGANISER", icon: "📋",
+    description: "You like bringing plans together, taking responsibility and making sure everything runs smoothly. You may enjoy coordinating people, projects and events.",
+    careers: "Event Management • Hotel Operations • Project Coordination"
+  },
+  creative: {
+    title: "THE CREATIVE THINKER", icon: "💡",
+    description: "You enjoy fresh ideas, imagination and creating memorable experiences. You may be drawn to designing new services and finding different ways to engage people.",
+    careers: "Experience Design • Destination Marketing • Tourism Entrepreneurship"
+  },
+  solver: {
+    title: "THE PROBLEM SOLVER", icon: "🧩",
+    description: "You are curious about how things work and enjoy finding practical solutions. You may enjoy using technology and information to improve the way businesses operate.",
+    careers: "Tourism Data Analysis • Digital Transformation • Travel Technology"
+  }
+};
+
+const questions = [
+  { q: "When you join a new group, what do you naturally enjoy doing?", a: [
+    ["Getting to know everyone and making people feel included.", "people"],
+    ["Helping the group organise what needs to be done.", "organiser"],
+    ["Sharing unusual ideas and suggesting something different.", "creative"],
+    ["Thinking through the best way to solve any challenge.", "solver"]
+  ]},
+  { q: "Which task sounds most enjoyable to you?", a: [
+    ["Welcoming visitors and helping them have a great experience.", "people"],
+    ["Planning an event and making sure every detail is ready.", "organiser"],
+    ["Creating a new concept or designing an exciting experience.", "creative"],
+    ["Using digital tools to improve a service or solve a problem.", "solver"]
+  ]},
+  { q: "Your team has a big project. Which role would you choose?", a: [
+    ["The person who communicates with everyone.", "people"],
+    ["The person who creates the plan and keeps things on track.", "organiser"],
+    ["The person who comes up with the main idea.", "creative"],
+    ["The person who researches options and finds solutions.", "solver"]
+  ]},
+  { q: "What would make you feel most proud?", a: [
+    ["Knowing that you made someone's day better.", "people"],
+    ["Seeing a complicated event run perfectly.", "organiser"],
+    ["Seeing people enjoy something you imagined and created.", "creative"],
+    ["Finding a smart solution that makes something work better.", "solver"]
+  ]},
+  { q: "Which environment appeals to you most?", a: [
+    ["A lively place where you meet people from different backgrounds.", "people"],
+    ["A busy workplace where you coordinate activities and teams.", "organiser"],
+    ["A creative space where new ideas are encouraged.", "creative"],
+    ["A modern workplace using technology, systems and data.", "solver"]
+  ]},
+  { q: "When something unexpected goes wrong, you usually…", a: [
+    ["Talk to the people involved and help them feel reassured.", "people"],
+    ["Make a quick plan and organise the next steps.", "organiser"],
+    ["Think of an alternative approach nobody has tried yet.", "creative"],
+    ["Look for the cause and work out the most effective fix.", "solver"]
+  ]},
+  { q: "Which topic would you most like to learn more about?", a: [
+    ["Communication, cultures and understanding people.", "people"],
+    ["Leadership, planning and managing operations.", "organiser"],
+    ["Innovation, design and creating new experiences.", "creative"],
+    ["Artificial intelligence, digital tools and data.", "solver"]
+  ]},
+  { q: "Imagine your future career. What matters most to you?", a: [
+    ["Making connections and helping people.", "people"],
+    ["Taking responsibility and achieving goals with a team.", "organiser"],
+    ["Turning ideas into something new and exciting.", "creative"],
+    ["Solving challenges and improving how things work.", "solver"]
+  ]}
+];
+
+let current = 0;
+let scores = { people: 0, organiser: 0, creative: 0, solver: 0 };
+
+function renderQuestion() {
+  const item = questions[current];
+  document.getElementById("counter").textContent = `QUESTION ${current + 1} OF ${questions.length}`;
+  document.getElementById("percent").textContent = `${Math.round(current / questions.length * 100)}% COMPLETE`;
+  document.getElementById("bar").style.width = `${current / questions.length * 100}%`;
+  document.getElementById("question").textContent = item.q;
+  const answers = document.getElementById("answers");
+  answers.innerHTML = "";
+  item.a.forEach(([label, type]) => {
+    const button = document.createElement("button");
+    button.className = "answer";
+    button.type = "button";
+    button.textContent = label;
+    button.addEventListener("click", () => choose(type));
+    answers.appendChild(button);
+  });
+}
+function choose(type) {
+  scores[type]++;
+  current++;
+  if (current < questions.length) renderQuestion();
+  else showResult();
+}
+function showResult() {
+  const max = Math.max(...Object.values(scores));
+  const winners = Object.keys(scores).filter(k => scores[k] === max);
+  // A tie is resolved by the earliest tied profile in the quiz's fixed order.
+  const winner = ["people", "organiser", "creative", "solver"].find(k => winners.includes(k));
+  const p = profiles[winner];
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  document.getElementById("resultIcon").textContent = p.icon;
+  document.getElementById("resultTitle").textContent = p.title;
+  document.getElementById("resultDescription").textContent = p.description;
+  document.getElementById("careerIdeas").textContent = p.careers;
+  document.getElementById("bar").style.width = "100%";
+}
+function restartQuiz() {
+  current = 0;
+  scores = { people: 0, organiser: 0, creative: 0, solver: 0 };
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  renderQuestion();
+}
+renderQuestion();
+</script>
+</body>
+</html>
